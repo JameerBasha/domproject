@@ -21,7 +21,7 @@ async function requestIssues(req, res) {
         username +
         "/" +
         reponame +
-        "/issues?access_token=a945bd7861149715ace2fd4b1137be371bbecd90";
+        "/issues?access_token=f9a22ac9f9a14359b11f0786a21e083aaf8ea64e";
     let promise = new Promise((res, rej) => {
         res(request(url));
     });
@@ -57,7 +57,7 @@ function printIssues(responseObject) {
 }
 async function getListOfLabels() {
     const urlv =
-        "https://api.github.com/repos/jameerbasha/samplerepo/labels?access_token=a945bd7861149715ace2fd4b1137be371bbecd90";
+        "https://api.github.com/repos/jameerbasha/samplerepo/labels?access_token=f9a22ac9f9a14359b11f0786a21e083aaf8ea64e";
     let promise = await fetch(urlv, {
         method: "GET",
         headers: {
@@ -90,11 +90,12 @@ async function printLabels(responseObject) {
             newlabel.setAttribute("Id", "label-number" + indexNumberOfLabel);
             newlabel.setAttribute(
                 "onclick",
-                "removeLabel" + "(" + indexNumberOfLabel + ")"
+                "removeLabel" + "(" + indexNumberOfLabel + "," + indexNumber + ")"
             );
             newlabel.innerHTML = labels[label][individualLabel]["name"];
             newlabel.style.background = "#" + labels[label][individualLabel]["color"];
             newlabel.style.color = "#000000";
+            newlabel.style.padding = "2px";
             document
                 .getElementById("label-container-number" + indexNumber)
                 .appendChild(newlabel);
@@ -127,9 +128,26 @@ async function printLabels(responseObject) {
         indexNumber -= 1;
     }
 }
-// https://api.github.com/repos/jameerbasha/samplerepo/issues/10?labels=testing?access_token=a945bd7861149715ace2fd4b1137be371bbecd90
-async function removeLabel(labelIndex) {
-    document.getElementById("label-number" + labelIndex).remove();
+// https://api.github.com/repos/jameerbasha/samplerepo/issues/10?labels=testing?access_token=f9a22ac9f9a14359b11f0786a21e083aaf8ea64e
+async function removeLabel(labelIndex, issueIndex) {
+    var removeLabelName = document.getElementById("label-number" + labelIndex)
+        .textContent;
+    console.log(removeLabelName);
+    let urlv =
+        "https://api.github.com/repos/jameerbasha/samplerepo/issues/" +
+        issueIndex +
+        "/labels/" +
+        removeLabelName +
+        "?access_token=f9a22ac9f9a14359b11f0786a21e083aaf8ea64e";
+    let promise = await fetch(urlv, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json;charset=utf-8"
+        }
+    });
+    let responseValue = await promise.text();
+    console.log(responseValue);
+    getIssues();
 }
 
 async function getIssues() {
@@ -140,23 +158,15 @@ async function getIssues() {
     parsedObject = JSON.parse(obtainedObject);
     printIssues(parsedObject);
     printLabels(parsedObject);
+    document.getElementById("update-title").innerHTML =
+        "<h5 class='text-light'>Enter Issue Index<input id='update-title-number' type='number'><br>Enter Issue Title &nbsp;<input id='update-title-name' type='text'><br><center><button id='update-button' onclick='updateTitle()'>Update title</button></h5></center>";
 }
 
-// function addLabel(issueId) {
-//     var nonee = document.getElementById("input-label-number-" + issueId);
-//     if (nonee.value === "") {
-//         alert("No label entered");
-//         return;
-//     } else {
-//         console.log(nonee.value);
-//     }
-// }
-
-async function addLabels(issueId) {
+async function addLabel(issueId) {
     const urlv =
         "https://api.github.com/repos/jameerbasha/samplerepo/issues/" +
         issueId +
-        "?access_token=a945bd7861149715ace2fd4b1137be371bbecd90";
+        "?access_token=f9a22ac9f9a14359b11f0786a21e083aaf8ea64e";
     const responseValue = await requestIssues();
     const responseObject = JSON.parse(responseValue);
     var indexNumber = Object.keys(responseObject).length;
@@ -167,20 +177,45 @@ async function addLabels(issueId) {
     }
     var toBeAddedLabel = document.getElementById("input-label-number-" + issueId)
         .value;
-    if (toBeAddedLabel in currentLabelList) {
-        return;
-    } else {
-        currentLabelList.push(toBeAddedLabel);
+    var presentAlreadyTag = 0;
+    for (let label in currentLabelList) {
+        if (toBeAddedLabel === currentLabelList[label]) {
+            return;
+        }
     }
+    currentLabelList.push(toBeAddedLabel);
+    var labelObject = {
+        labels: currentLabelList
+    };
+    let promise = await fetch(urlv, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json;charset=utf-8"
+        },
+        body: JSON.stringify(labelObject)
+    });
+    let text = await promise.text();
+    console.log(text);
+    getIssues();
+}
 
-    console.log(currentLabelList);
-    // let promise = await fetch(urlv, {
-    //     method: "POST",
-    //     headers: {
-    //         "Content-Type": "application/json;charset=utf-8"
-    //     },
-    //     body: JSON.stringify(labelObject)
-    // });
-    // let text = await promise.text();
-    // console.log(text);
+async function updateTitle() {
+    var updateTitleNumber = document.getElementById("update-title-number").value;
+    var updateTitleName = document.getElementById("update-title-name").value;
+    let urlv =
+        "https://api.github.com/repos/jameerbasha/samplerepo/issues/" +
+        updateTitleNumber +
+        "?access_token=f9a22ac9f9a14359b11f0786a21e083aaf8ea64e";
+    console.log(urlv);
+    let updateObject = { title: updateTitleName };
+    let promise = await fetch(urlv, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json;charset=utf-8"
+        },
+        body: JSON.stringify(updateObject)
+    });
+    let responseValue = await promise.text();
+    console.log(responseValue);
+    getIssues();
 }
