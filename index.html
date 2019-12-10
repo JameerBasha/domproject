@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href='app.css'>
+</head>
+
+<body class='bg-dark'>
+    <h1 class="heading-name bg-dark text-light">
+        <center>GITHUB ISSUES</center>
+    </h1>
+    <h2 class="input-container bg-dark text-light">
+        <div class="input-name">
+            Enter the username for github<br> Enter the name of the github repo
+        </div>
+        <div class="input-field">
+            <input type='text' name='Username' id='username-input' value='jameerbasha'>
+            <input type='text' name='reponame' id='reponame-input' value='samplerepo'>
+        </div>
+    </h2>
+
+    <center>
+        <button onmousedown='getIssues()'>Get Issues List</button>
+        </form>
+    </center>
+    <br>
+    <hr>
+    <div class="issues-container" id="issues-container">
+
+    </div>
+    <script src='app.js'></script>
+</body>
+
+</html>

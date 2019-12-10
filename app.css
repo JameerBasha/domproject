@@ -1,0 +1,45 @@
+.issues-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.issue-box {
+    display: flex;
+    flex-direction: row;
+}
+
+.input-name {
+    width: 50%;
+}
+
+.input-field {
+    width: 50%;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.issue-title {
+    font-size: 1rem;
+    width: 30%;
+    padding-left: 1rem;
+}
+
+.created-on {
+    font-size: 1rem;
+    width: 20%;
+    padding-right: 1rem;
+}
+
+hr {
+    color: white;
+    background: white;
+}
+
+.created-on-text,
+.issue-title-text {
+    color: white;
+    font-size: 0.9rem;
+}
