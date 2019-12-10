@@ -21,7 +21,7 @@ async function requestIssues(req, res) {
         username +
         "/" +
         reponame +
-        "/issues?access_token=121d3bdb1f85d20bb568a56b9c1842837fa7bb96";
+        "/issues?access_token=a945bd7861149715ace2fd4b1137be371bbecd90";
     let promise = new Promise((res, rej) => {
         res(request(url));
     });
@@ -55,8 +55,25 @@ function printIssues(responseObject) {
         indexNumber -= 1;
     }
 }
+async function getListOfLabels() {
+    const urlv =
+        "https://api.github.com/repos/jameerbasha/samplerepo/labels?access_token=a945bd7861149715ace2fd4b1137be371bbecd90";
+    let promise = await fetch(urlv, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json;charset=utf-8"
+        }
+    });
+    let responseValue = await promise.text();
+    let responseObject = JSON.parse(responseValue);
+    let arrayOfLabels = [];
+    for (let label in responseObject) {
+        arrayOfLabels.push(responseObject[label]["name"]);
+    }
+    return arrayOfLabels;
+}
 
-function printLabels(responseObject) {
+async function printLabels(responseObject) {
     var labels = [];
     var labelColor = [];
     var indexNumber = Object.keys(responseObject).length;
@@ -86,11 +103,31 @@ function printLabels(responseObject) {
                 .appendChild(spaceElement);
             indexNumberOfLabel += 1;
         }
-
+        var newAddInput = document.createElement("select");
+        let arrayOfLabels = await getListOfLabels();
+        for (let label in arrayOfLabels) {
+            newAddInput.innerHTML +=
+                "<option value=" +
+                arrayOfLabels[label] +
+                ">" +
+                arrayOfLabels[label] +
+                "</option>";
+        }
+        newAddInput.setAttribute("Id", "input-label-number-" + indexNumber);
+        var newAddButton = document.createElement("button");
+        newAddButton.innerHTML = "ADD LABEL";
+        newAddButton.style.marginLeft = "10px";
+        newAddButton.setAttribute("onclick", "addLabel(" + indexNumber + ")");
+        document
+            .getElementById("label-container-number" + indexNumber)
+            .appendChild(newAddInput);
+        document
+            .getElementById("label-container-number" + indexNumber)
+            .appendChild(newAddButton);
         indexNumber -= 1;
     }
 }
-// https://api.github.com/repos/jameerbasha/samplerepo/issues/10?labels=testing?access_token=07ea2d0db57fb843f4ce7f1b6864ceae8e443850
+// https://api.github.com/repos/jameerbasha/samplerepo/issues/10?labels=testing?access_token=a945bd7861149715ace2fd4b1137be371bbecd90
 async function removeLabel(labelIndex) {
     document.getElementById("label-number" + labelIndex).remove();
 }
@@ -103,4 +140,47 @@ async function getIssues() {
     parsedObject = JSON.parse(obtainedObject);
     printIssues(parsedObject);
     printLabels(parsedObject);
+}
+
+// function addLabel(issueId) {
+//     var nonee = document.getElementById("input-label-number-" + issueId);
+//     if (nonee.value === "") {
+//         alert("No label entered");
+//         return;
+//     } else {
+//         console.log(nonee.value);
+//     }
+// }
+
+async function addLabels(issueId) {
+    const urlv =
+        "https://api.github.com/repos/jameerbasha/samplerepo/issues/" +
+        issueId +
+        "?access_token=a945bd7861149715ace2fd4b1137be371bbecd90";
+    const responseValue = await requestIssues();
+    const responseObject = JSON.parse(responseValue);
+    var indexNumber = Object.keys(responseObject).length;
+    const currentIssue = responseObject[indexNumber - issueId];
+    var currentLabelList = [];
+    for (let label in currentIssue["labels"]) {
+        currentLabelList.push(currentIssue["labels"][label]["name"]);
+    }
+    var toBeAddedLabel = document.getElementById("input-label-number-" + issueId)
+        .value;
+    if (toBeAddedLabel in currentLabelList) {
+        return;
+    } else {
+        currentLabelList.push(toBeAddedLabel);
+    }
+
+    console.log(currentLabelList);
+    // let promise = await fetch(urlv, {
+    //     method: "POST",
+    //     headers: {
+    //         "Content-Type": "application/json;charset=utf-8"
+    //     },
+    //     body: JSON.stringify(labelObject)
+    // });
+    // let text = await promise.text();
+    // console.log(text);
 }
