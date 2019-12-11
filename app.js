@@ -17,7 +17,7 @@ async function requestIssues(req, res) {
         username +
         "/" +
         reponame +
-        "/issues?access_token=f9a22ac9f9a14359b11f0786a21e083aaf8ea64e";
+        "/issues?access_token=49321cbd653b2c3f85eb030838ac62abdd4e2ce0";
 
     let result = await request(url);
     return result;
@@ -50,7 +50,7 @@ function printIssues(responseObject) {
 }
 async function getListOfLabels() {
     const urlv =
-        "https://api.github.com/repos/jameerbasha/samplerepo/labels?access_token=f9a22ac9f9a14359b11f0786a21e083aaf8ea64e";
+        "https://api.github.com/repos/jameerbasha/samplerepo/labels?access_token=49321cbd653b2c3f85eb030838ac62abdd4e2ce0";
     let promise = await fetch(urlv, {
         method: "GET",
         headers: {
@@ -132,7 +132,7 @@ async function removeLabel(labelIndex, issueIndex) {
         issueIndex +
         "/labels/" +
         removeLabelName +
-        "?access_token=f9a22ac9f9a14359b11f0786a21e083aaf8ea64e";
+        "?access_token=49321cbd653b2c3f85eb030838ac62abdd4e2ce0";
     let promise = await fetch(urlv, {
         method: "DELETE",
         headers: {
@@ -162,7 +162,7 @@ async function addLabel(issueId) {
     const urlv =
         "https://api.github.com/repos/jameerbasha/samplerepo/issues/" +
         issueId +
-        "?access_token=f9a22ac9f9a14359b11f0786a21e083aaf8ea64e";
+        "?access_token=49321cbd653b2c3f85eb030838ac62abdd4e2ce0";
     const responseValue = await requestIssues();
     const responseObject = JSON.parse(responseValue);
     var indexNumber = Object.keys(responseObject).length;
@@ -200,7 +200,7 @@ async function updateTitle() {
     let urlv =
         "https://api.github.com/repos/jameerbasha/samplerepo/issues/" +
         updateTitleNumber +
-        "?access_token=f9a22ac9f9a14359b11f0786a21e083aaf8ea64e";
+        "?access_token=49321cbd653b2c3f85eb030838ac62abdd4e2ce0";
     console.log(urlv);
     let updateObject = { title: updateTitleName };
     let promise = await fetch(urlv, {
