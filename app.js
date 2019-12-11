@@ -1,9 +1,12 @@
-async function request(url) {
+accessToken = "4969c54a09e9421efc5d92e91ec33ac1e40d493f";
+
+async function request(url, method, messageBody) {
     let promise = await fetch(url, {
-        method: "GET",
+        method: method,
         headers: {
             "Content-Type": "application/json;charset=utf-8"
-        }
+        },
+        body: JSON.stringify(messageBody)
     });
     let responseValue = await promise.text();
     return responseValue;
@@ -17,9 +20,10 @@ async function requestIssues(req, res) {
         username +
         "/" +
         reponame +
-        "/issues?access_token=49321cbd653b2c3f85eb030838ac62abdd4e2ce0";
+        "/issues?access_token=" +
+        accessToken;
 
-    let result = await request(url);
+    let result = await request(url, "GET");
     return result;
 }
 
@@ -31,15 +35,18 @@ function printIssues(responseObject) {
         var newIssueBox = document.createElement("div");
         newIssueBox.setAttribute("class", "issue-box text-light");
         newIssueBox.setAttribute("id", "issue-box-number-" + indexNumber);
+
         var newIssueTitle = document.createElement("div");
         newIssueTitle.setAttribute("class", "issue-title");
         newIssueTitle.innerHTML =
             indexNumber + "." + responseObject[issueNumber]["title"];
         newIssueBox.appendChild(newIssueTitle);
+
         var newCreateDate = document.createElement("div");
         newCreateDate.setAttribute("class", "created-on text-light");
         newCreateDate.innerHTML = responseObject[issueNumber]["created_at"];
         newIssueBox.appendChild(newCreateDate);
+
         var newLabel = document.createElement("div");
         newLabel.setAttribute("class", "label-container");
         newLabel.setAttribute("Id", "label-container-number" + indexNumber);
@@ -48,16 +55,12 @@ function printIssues(responseObject) {
         indexNumber -= 1;
     }
 }
+
 async function getListOfLabels() {
-    const urlv =
-        "https://api.github.com/repos/jameerbasha/samplerepo/labels?access_token=49321cbd653b2c3f85eb030838ac62abdd4e2ce0";
-    let promise = await fetch(urlv, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json;charset=utf-8"
-        }
-    });
-    let responseValue = await promise.text();
+    const url =
+        "https://api.github.com/repos/jameerbasha2/samplerepo/labels?access_token=" +
+        accessToken;
+    let responseValue = await request(url, "GET");
     let responseObject = JSON.parse(responseValue);
     let arrayOfLabels = [];
     for (let label in responseObject) {
@@ -127,29 +130,18 @@ async function removeLabel(labelIndex, issueIndex) {
     var removeLabelName = document.getElementById("label-number" + labelIndex)
         .textContent;
     console.log(removeLabelName);
-    let urlv =
-        "https://api.github.com/repos/jameerbasha/samplerepo/issues/" +
+    let url =
+        "https://api.github.com/repos/jameerbasha2/samplerepo/issues/" +
         issueIndex +
         "/labels/" +
         removeLabelName +
-        "?access_token=49321cbd653b2c3f85eb030838ac62abdd4e2ce0";
-    let promise = await fetch(urlv, {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json;charset=utf-8"
-        }
-    });
-    let responseValue = await promise.statusText;
-    if (responseValue === "OK") {
-        document.getElementById("label-number" + labelIndex).remove();
-    }
+        "?access_token=" +
+        accessToken;
+    let promise = await request(url, "DELETE");
     getIssues();
 }
 
 async function getIssues() {
-    let promise = new Promise((res, rej) => {
-        res(requestIssues());
-    });
     let obtainedObject = await requestIssues();
     parsedObject = JSON.parse(obtainedObject);
     printIssues(parsedObject);
@@ -159,10 +151,11 @@ async function getIssues() {
 }
 
 async function addLabel(issueId) {
-    const urlv =
-        "https://api.github.com/repos/jameerbasha/samplerepo/issues/" +
+    const url =
+        "https://api.github.com/repos/jameerbasha2/samplerepo/issues/" +
         issueId +
-        "?access_token=49321cbd653b2c3f85eb030838ac62abdd4e2ce0";
+        "?access_token=" +
+        accessToken;
     const responseValue = await requestIssues();
     const responseObject = JSON.parse(responseValue);
     var indexNumber = Object.keys(responseObject).length;
@@ -173,7 +166,6 @@ async function addLabel(issueId) {
     }
     var toBeAddedLabel = document.getElementById("input-label-number-" + issueId)
         .value;
-    var presentAlreadyTag = 0;
     for (let label in currentLabelList) {
         if (toBeAddedLabel === currentLabelList[label]) {
             return;
@@ -183,34 +175,19 @@ async function addLabel(issueId) {
     var labelObject = {
         labels: currentLabelList
     };
-    let promise = await fetch(urlv, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json;charset=utf-8"
-        },
-        body: JSON.stringify(labelObject)
-    });
-    let text = await promise.statusText;
+    let promise = await request(url, "POST", labelObject);
     getIssues();
 }
 
 async function updateTitle() {
     var updateTitleNumber = document.getElementById("update-title-number").value;
     var updateTitleName = document.getElementById("update-title-name").value;
-    let urlv =
-        "https://api.github.com/repos/jameerbasha/samplerepo/issues/" +
+    let url =
+        "https://api.github.com/repos/jameerbasha2/samplerepo/issues/" +
         updateTitleNumber +
-        "?access_token=49321cbd653b2c3f85eb030838ac62abdd4e2ce0";
-    console.log(urlv);
+        "?access_token=" +
+        accessToken;
     let updateObject = { title: updateTitleName };
-    let promise = await fetch(urlv, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json;charset=utf-8"
-        },
-        body: JSON.stringify(updateObject)
-    });
-    let responseValue = await promise.text();
-    console.log(responseValue);
+    let promise = await request(url, "PATCH", updateObject);
     getIssues();
 }
