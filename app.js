@@ -1,16 +1,12 @@
 async function request(url) {
-    const Http = new XMLHttpRequest();
-    Http.open("GET", url);
-    Http.send();
-    let promise = new Promise((res, rej) => {
-        Http.onreadystatechange = e => {
-            if (Http.readyState == 4 && Http.status == 200) {
-                res(String(Http.responseText));
-            }
-        };
+    let promise = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json;charset=utf-8"
+        }
     });
-    let result = await promise;
-    return result;
+    let responseValue = await promise.text();
+    return responseValue;
 }
 
 async function requestIssues(req, res) {
@@ -22,11 +18,8 @@ async function requestIssues(req, res) {
         "/" +
         reponame +
         "/issues?access_token=f9a22ac9f9a14359b11f0786a21e083aaf8ea64e";
-    let promise = new Promise((res, rej) => {
-        res(request(url));
-    });
 
-    let result = await promise;
+    let result = await request(url);
     return result;
 }
 
@@ -81,6 +74,7 @@ async function printLabels(responseObject) {
     for (let issueNumber in responseObject) {
         labels.push(responseObject[issueNumber]["labels"]);
     }
+    let arrayOfLabels = await getListOfLabels();
     for (let label in labels) {
         for (let individualLabel in labels[label]) {
             var spaceElement = document.createElement("span");
@@ -105,7 +99,7 @@ async function printLabels(responseObject) {
             indexNumberOfLabel += 1;
         }
         var newAddInput = document.createElement("select");
-        let arrayOfLabels = await getListOfLabels();
+
         for (let label in arrayOfLabels) {
             newAddInput.innerHTML +=
                 "<option value=" +
@@ -128,7 +122,7 @@ async function printLabels(responseObject) {
         indexNumber -= 1;
     }
 }
-// https://api.github.com/repos/jameerbasha/samplerepo/issues/10?labels=testing?access_token=f9a22ac9f9a14359b11f0786a21e083aaf8ea64e
+
 async function removeLabel(labelIndex, issueIndex) {
     var removeLabelName = document.getElementById("label-number" + labelIndex)
         .textContent;
@@ -145,8 +139,10 @@ async function removeLabel(labelIndex, issueIndex) {
             "Content-Type": "application/json;charset=utf-8"
         }
     });
-    let responseValue = await promise.text();
-    console.log(responseValue);
+    let responseValue = await promise.statusText;
+    if (responseValue === "OK") {
+        document.getElementById("label-number" + labelIndex).remove();
+    }
     getIssues();
 }
 
@@ -194,8 +190,7 @@ async function addLabel(issueId) {
         },
         body: JSON.stringify(labelObject)
     });
-    let text = await promise.text();
-    console.log(text);
+    let text = await promise.statusText;
     getIssues();
 }
 
